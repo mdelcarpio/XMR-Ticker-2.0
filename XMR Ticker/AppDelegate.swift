@@ -420,7 +420,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
                 }
                 else
                 {
-                    updatedPriceString = "XMR/BRL R$\(self.currentQuote.notionalValues!["usd"]!.string(fractionDigits: 2))"
+                    updatedPriceString = "XMR/BRL R$\(self.currentQuote.notionalValues!["brl"]!.string(fractionDigits: 2))"
                 }
             case .usd:
                 if (self.coinSymbolsEnabled == true)
@@ -452,8 +452,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
     {
         if (self.portfolioIsTracked)
         {
-            let portfolioValue = self.portfolioCoinCount*self.currentQuote.notionalValues!["usd"]!
-            self.portfolioButton.title = "Portfolio ($\(portfolioValue.string(fractionDigits: 2)))"
+            var currentCurrency = ""
+            var symbol = ""
+            var fractionDigits = 2
+            //Update portfolio depending on the selected currency
+            switch self.displayTerms {
+            case .brl:
+                currentCurrency = "brl"
+                symbol = "R$"
+                
+            case .usd:
+                currentCurrency = "usd"
+                symbol = "$"
+                
+            case .btc:
+                currentCurrency = "btc"
+                symbol = "Ƀ"
+                fractionDigits = 6
+            }
+            
+            //end update
+            
+            let portfolioValue = self.portfolioCoinCount*self.currentQuote.notionalValues![currentCurrency]!
+            self.portfolioButton.title = "Portfolio (\(symbol)\(portfolioValue.string(fractionDigits: fractionDigits)))"
         }
         else
         {
@@ -534,20 +555,20 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
                     case .greaterThan:
                         if(self.currentQuote.notionalValues!["brl"]! > trigger.triggerValue)
                         {
-                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now > $\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
+                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now > R$\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
                             indexesToRemove.append(index)
                         }
                     case .lessThan:
                         if(self.currentQuote.notionalValues!["brl"]! < trigger.triggerValue)
                         {
-                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now < $\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
+                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now < R$\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
                             indexesToRemove.append(index)
                             
                         }
                     case .equalTo:
                         if(self.currentQuote.notionalValues!["brl"]! == trigger.triggerValue)
                         {
-                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now = $\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
+                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now = R$\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
                             indexesToRemove.append(index)
                         }
                     }

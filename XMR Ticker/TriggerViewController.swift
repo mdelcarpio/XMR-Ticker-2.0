@@ -79,7 +79,10 @@ class TriggerViewController: NSViewController, NSTableViewDelegate, NSTableViewD
             {
                 cellText = "\(self.localTriggerList[row].triggerValue) BTC"
             }
-            else{
+            else if(self.localTriggerList[row].counterCurrency == .brl){
+                cellText = "R$\(self.localTriggerList[row].triggerValue.string(fractionDigits: 2))"
+            }
+            else if(self.localTriggerList[row].counterCurrency == .usd){
                 cellText = "$\(self.localTriggerList[row].triggerValue.string(fractionDigits: 2))"
             }
             cellIdentifier = "TriggerCell"
