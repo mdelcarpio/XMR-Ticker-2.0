@@ -101,6 +101,8 @@ class TriggerViewController: NSViewController, NSTableViewDelegate, NSTableViewD
         var logic:Trigger.Logic
         
         switch self.triggerCurrencyBox.stringValue {
+        case let switchString where switchString.contains("BRL"):
+            counterCurrency = Trigger.CounterCurrency.brl
         case let switchString where switchString.contains("USD"):
             counterCurrency = Trigger.CounterCurrency.usd
         case let switchString where switchString.contains("BTC"):

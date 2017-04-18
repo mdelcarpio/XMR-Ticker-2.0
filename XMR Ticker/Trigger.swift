@@ -16,6 +16,7 @@ class Trigger: NSObject, NSCoding
     enum CounterCurrency:String {
         case btc = "BTC" //bitcoin
         case usd = "USD" //us dollar
+        case brl = "BRL" //brazilian real
     }
     enum Logic:String {
         case greaterThan = ">"

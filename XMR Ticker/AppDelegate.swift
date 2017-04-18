@@ -38,6 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
     
     //terms settings
     enum Terms {
+        case brl
         case usd
         case btc
     }
@@ -45,6 +46,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
     var displayTerms:Terms = .usd
     
     @IBOutlet weak var usdTermsButton: NSMenuItem!
+    @IBOutlet weak var brlTermsButton: NSMenuItem!
     @IBOutlet weak var btcTermsButton: NSMenuItem!
     
     @IBAction func updateTermsChanged(_ sender: NSMenuItem)
@@ -52,18 +54,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
         print("XMR Ticker \(NSDate()): terms toggled")
         
         switch sender.title {
+        case "BRL":
+            self.displayTerms = .brl
+            self.brlTermsButton.state = NSOnState
+            self.btcTermsButton.state = NSOffState
+            self.usdTermsButton.state = NSOffState
+
         case "USD":
             self.displayTerms = .usd
             self.usdTermsButton.state = NSOnState
             self.btcTermsButton.state = NSOffState
+            self.brlTermsButton.state = NSOffState
+
         case "BTC":
             self.displayTerms = .btc
             self.usdTermsButton.state = NSOffState
+            self.brlTermsButton.state = NSOffState
             self.btcTermsButton.state = NSOnState
         default:
-            self.displayTerms = .usd
-            self.usdTermsButton.state = NSOnState
+            self.displayTerms = .brl
+            self.usdTermsButton.state = NSOffState
             self.btcTermsButton.state = NSOffState
+            self.brlTermsButton.state = NSOnState
+
         }
         if (sender.action != nil)
         {
@@ -346,6 +359,19 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
         if(self.historicalQuote.notionalValues != nil)
         {
             switch self.displayTerms{
+            case .brl:
+                if(self.currentQuote.notionalValues!["brl"]! > self.historicalQuote.notionalValues!["brl"]!)
+                {
+                    self.trend = .bullish
+                }
+                else if(self.currentQuote.notionalValues!["brl"]! < self.historicalQuote.notionalValues!["brl"]!)
+                {
+                    self.trend = .bearish
+                }
+                else
+                {
+                    self.trend = .neutral
+                }
             case .usd:
                 if(self.currentQuote.notionalValues!["usd"]! > self.historicalQuote.notionalValues!["usd"]!)
                 {
@@ -387,6 +413,15 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
         //do ui updates on main thread gcd call
         DispatchQueue.main.async(execute: {
             switch self.displayTerms {
+            case .brl:
+                if (self.coinSymbolsEnabled == true)
+                {
+                    updatedPriceString = "ɱ R$\(self.currentQuote.notionalValues!["brl"]!.string(fractionDigits: 2))"
+                }
+                else
+                {
+                    updatedPriceString = "XMR/BRL R$\(self.currentQuote.notionalValues!["usd"]!.string(fractionDigits: 2))"
+                }
             case .usd:
                 if (self.coinSymbolsEnabled == true)
                 {
@@ -494,6 +529,29 @@ class AppDelegate: NSObject, NSApplicationDelegate, PriceListener, TriggerArrayR
             for (index, trigger) in self.triggerList.enumerated()
             {
                 switch trigger.counterCurrency {
+                case .brl:
+                    switch trigger.logic {
+                    case .greaterThan:
+                        if(self.currentQuote.notionalValues!["brl"]! > trigger.triggerValue)
+                        {
+                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now > $\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
+                            indexesToRemove.append(index)
+                        }
+                    case .lessThan:
+                        if(self.currentQuote.notionalValues!["brl"]! < trigger.triggerValue)
+                        {
+                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now < $\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
+                            indexesToRemove.append(index)
+                            
+                        }
+                    case .equalTo:
+                        if(self.currentQuote.notionalValues!["brl"]! == trigger.triggerValue)
+                        {
+                            self.postTriggerNotification(title: title, body: "\(trigger.counterCurrency.rawValue) trigger hit, \(trigger.baseCurrency.rawValue)/\(trigger.counterCurrency.rawValue) now = $\(trigger.triggerValue.string(fractionDigits: 2)). Occured @ \(NSDate())")
+                            indexesToRemove.append(index)
+                        }
+                    }
+                    
                 case .usd:
                     switch trigger.logic {
                     case .greaterThan:

@@ -14,6 +14,7 @@ class Quote
         case xmr //monero
         case btc //bitcoin
         case usd //us dollar
+        case brl //brazilian real
         case err //error case
     }
     var baseCurrency:BaseCurrency?
